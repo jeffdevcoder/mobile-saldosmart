@@ -1,20 +1,25 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AppProvider } from './src/context/AppContext';
+import AppNavigator from './src/navigation/AppNavigator';
+import { useFonts, SairaStencilOne_400Regular } from '@expo-google-fonts/saira-stencil-one';
+import Toast from 'react-native-toast-message';
 
 export default function App() {
+  let [fontsLoaded] = useFonts({
+    SairaStencilOne_400Regular,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <AppProvider>
+        <AppNavigator />
+      </AppProvider>
+      <Toast />
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

@@ -1,0 +1,93 @@
+import React, { createContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export const AppContext = createContext();
+
+export const AppProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  const [registeredUsers, setRegisteredUsers] = useState([]);
+
+  // Load users from storage on startup
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedUsers = await AsyncStorage.getItem('@registered_users');
+        if (storedUsers) {
+          setRegisteredUsers(JSON.parse(storedUsers));
+        }
+      } catch (e) {
+        console.error('Error loading users', e);
+      }
+    };
+    loadData();
+  }, []);
+
+  // Calculate balance based on transactions
+  const balance = transactions.reduce((acc, curr) => {
+    return curr.type === 'entrada' ? acc + curr.value : acc - curr.value;
+  }, 0);
+
+  const login = (email, password) => {
+    if (email === 'admin@admin.com' && password === '1234') {
+      return { email, role: 'admin' };
+    }
+    
+    const userExists = registeredUsers.find(u => u.email === email && u.password === password);
+    if (userExists) {
+      return { email: userExists.email };
+    }
+    
+    return false;
+  };
+
+  const register = async (email, password) => {
+    if (email === 'admin@admin.com' || registeredUsers.some(u => u.email === email)) {
+      return false;
+    }
+    
+    const newUsersList = [...registeredUsers, { email, password }];
+    setRegisteredUsers(newUsersList);
+
+    try {
+      await AsyncStorage.setItem('@registered_users', JSON.stringify(newUsersList));
+    } catch (e) {
+      console.error('Error saving users', e);
+    }
+
+    return true;
+  };
+
+  const logout = () => {
+    setUser(null);
+    setTransactions([]);
+  };
+
+  const addTransaction = (type, description, value) => {
+    const newTransaction = {
+      id: Date.now().toString(),
+      type,
+      description,
+      value: parseFloat(value),
+      date: new Date().toLocaleDateString(),
+    };
+    setTransactions([newTransaction, ...transactions]);
+  };
+
+  return (
+    <AppContext.Provider
+      value={{
+        user,
+        setUser,
+        transactions,
+        balance,
+        login,
+        register,
+        logout,
+        addTransaction,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};
