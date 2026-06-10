@@ -5,7 +5,43 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState([
+    {
+      id: '1',
+      type: 'entrada',
+      description: 'Salário Mensal',
+      value: 4500.00,
+      date: '05/06/2026',
+    },
+    {
+      id: '2',
+      type: 'saida',
+      description: 'Supermercado Extra',
+      value: 382.50,
+      date: '06/06/2026',
+    },
+    {
+      id: '3',
+      type: 'saida',
+      description: 'Assinatura Netflix',
+      value: 55.90,
+      date: '06/06/2026',
+    },
+    {
+      id: '4',
+      type: 'entrada',
+      description: 'Desenvolvimento Freelance',
+      value: 1200.00,
+      date: '07/06/2026',
+    },
+    {
+      id: '5',
+      type: 'saida',
+      description: 'Almoço Restaurante',
+      value: 84.90,
+      date: '08/06/2026',
+    },
+  ]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
 
   // Load users from storage on startup
