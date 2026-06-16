@@ -45,8 +45,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" backgroundColor="#f5f6fa" />
-      
-      {/* Header Section */}
+
       <View style={styles.header}>
         <View style={styles.userInfo}>
           <View style={styles.avatar}>
@@ -62,7 +61,6 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* Premium Balance Card */}
       <View style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>Saldo Geral Disponível</Text>
         <Text style={styles.balanceValue}>R$ {balance.toFixed(2)}</Text>
@@ -90,7 +88,6 @@ export default function HomeScreen({ navigation }) {
         </View>
       </View>
 
-      {/* Transactions List */}
       <View style={styles.listContainer}>
         <Text style={styles.sectionTitle}>Transações Recentes</Text>
         
@@ -110,7 +107,6 @@ export default function HomeScreen({ navigation }) {
         )}
       </View>
 
-      {/* Action Buttons */}
       <View style={[styles.actionsContainer, { paddingBottom: Math.max(insets.bottom, 20) }]}>
         <TouchableOpacity 
           style={[styles.actionButton, styles.entryButton]}

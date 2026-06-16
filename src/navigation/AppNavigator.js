@@ -17,7 +17,6 @@ export default function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
-          // Screens for logged in users
           <>
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen 
@@ -27,7 +26,6 @@ export default function AppNavigator() {
             />
           </>
         ) : (
-          // Auth screens
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />

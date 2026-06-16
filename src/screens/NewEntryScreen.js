@@ -64,18 +64,16 @@ export default function NewEntryScreen({ route, navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
-      
-      {/* Custom Navigation Header */}
+
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} activeOpacity={0.7}>
           <Feather name="arrow-left" size={24} color="#1e293b" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Nova Movimentação</Text>
-        <View style={{ width: 40 }} /> {/* Spacer for centering title */}
+        <View style={{ width: 40 }} />
       </View>
 
       <View style={styles.content}>
-        {/* Toggle Switch */}
         <View style={styles.toggleContainer}>
           <TouchableOpacity 
             style={[
@@ -116,7 +114,6 @@ export default function NewEntryScreen({ route, navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* Inputs */}
         <View style={styles.form}>
           <Text style={styles.inputLabel}>Descrição</Text>
           <View style={styles.inputWrapper}>
@@ -145,7 +142,6 @@ export default function NewEntryScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* Buttons */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
             style={[styles.saveButton, isEntry ? styles.saveButtonEntry : styles.saveButtonExpense]} 

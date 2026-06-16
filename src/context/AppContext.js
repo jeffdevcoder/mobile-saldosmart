@@ -44,7 +44,6 @@ export const AppProvider = ({ children }) => {
   ]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
 
-  // Load users from storage on startup
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -59,13 +58,12 @@ export const AppProvider = ({ children }) => {
     loadData();
   }, []);
 
-  // Calculate balance based on transactions
   const balance = transactions.reduce((acc, curr) => {
     return curr.type === 'entrada' ? acc + curr.value : acc - curr.value;
   }, 0);
 
   const login = (email, password) => {
-    if (email === 'admin@admin.com' && password === '1234') {
+    if (email === 'admin@saldosmart.com' && password === '123456') {
       return { email, role: 'admin' };
     }
     
