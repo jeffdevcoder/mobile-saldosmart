@@ -1,12 +1,13 @@
 const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 const dbConfig = {
-    user: 'postgres',
-    host: 'localhost',
-    password: 'INSIRA_A_SENHA_DO_POSTGRES_AQUI',
-    port: 5432,
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    password: process.env.DB_PASSWORD, 
+    port: process.env.DB_PORT,
 };
 
 const dbName = 'saldosmart';
