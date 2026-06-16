@@ -26,6 +26,19 @@ const userController = {
         }
     },
 
+    async listar(req, res) {
+        try {
+            const result = await pool.query(
+                'SELECT id, nome, email, created_at FROM users ORDER BY id ASC'
+            );
+            
+            return res.json(result.rows);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ erro: 'Erro ao buscar a lista de usuários.' });
+        }
+    },
+
     async editar(req, res) {
         const { id } = req.params;
         const { nome, email } = req.body;

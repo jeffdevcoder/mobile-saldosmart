@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 
+const userRoutes = require('./routes/userRoutes'); 
+
 const app = express();
 
 app.use(cors());
@@ -11,5 +13,7 @@ app.get('/', (req, res) => {
         message: 'SaldoSmart API Online'
     });
 });
+
+app.use(userRoutes);
 
 module.exports = app;
