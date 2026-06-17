@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 
-const userRoutes = require('./routes/userRoutes'); 
+const authRoutes = require('./routes/authRoutes'); 
+const transactionRoutes = require('./routes/transactionRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
@@ -14,6 +16,8 @@ app.get('/', (req, res) => {
     });
 });
 
-app.use(userRoutes);
+app.use(authRoutes);
+app.use(transactionRoutes);
+app.use(dashboardRoutes);
 
 module.exports = app;
