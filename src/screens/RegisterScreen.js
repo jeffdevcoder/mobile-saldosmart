@@ -10,66 +10,78 @@ import {
   StatusBar
 } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { AppContext } from '../context/AppContext';
+import api from '../services/api';
 
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { register } = useContext(AppContext);
 
   const handleRegister = async () => {
-    if (name && email && password && confirmPassword) {
-      if (!email.includes('@')) {
-        Toast.show({
-          type: 'error',
-          text1: 'Erro',
-          text2: 'O e-mail deve conter "@"!'
-        });
-        return;
-      }
-
-      if (password.length < 6 || password.length > 12) {
-        Toast.show({
-          type: 'error',
-          text1: 'Erro',
-          text2: 'A senha deve ter entre 6 e 12 dígitos!'
-        });
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        Toast.show({
-          type: 'error',
-          text1: 'Erro',
-          text2: 'As senhas não coincidem!'
-        });
-        return;
-      }
-      
-      const success = await register(email, password);
-      if (!success) {
-        Toast.show({
-          type: 'error',
-          text1: 'Erro',
-          text2: 'Este e-mail já está em uso!'
-        });
-      } else {
-        Toast.show({
-          type: 'success',
-          text1: 'Sucesso',
-          text2: 'Cadastro realizado com sucesso!'
-        });
-        setTimeout(() => {
-          navigation.navigate('Login');
-        }, 2000);
-      }
-    } else {
+    if (!name || !email || !password || !confirmPassword) {
       Toast.show({
         type: 'error',
         text1: 'Erro',
         text2: 'Por favor, preencha todos os campos.'
+      });
+      return;
+    }
+
+    if (!email.includes('@')) {
+      Toast.show({
+        type: 'error',
+        text1: 'Erro',
+        text2: 'O e-mail deve conter "@"!'
+      });
+      return;
+    }
+
+    if (password.length < 6 || password.length > 12) {
+      Toast.show({
+        type: 'error',
+        text1: 'Erro',
+        text2: 'A senha deve ter entre 6 e 12 caracteres!'
+      });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Toast.show({
+        type: 'error',
+        text1: 'Erro',
+        text2: 'As senhas não coincidem!'
+      });
+      return;
+    }
+
+    try {
+      await api.post('/register', {
+        nome: name,
+        email,
+        senha: password
+      });
+
+      Toast.show({
+        type: 'success',
+        text1: 'Sucesso',
+        text2: 'Cadastro realizado com sucesso!'
+      });
+
+      setTimeout(() => {
+        navigation.navigate('Login');
+      }, 1500);
+
+    } catch (error) {
+
+      const mensagem =
+        error.response?.data?.erro ||
+        'Erro ao cadastrar usuário.';
+
+      Toast.show({
+        type: 'error',
+        text1: 'Erro',
+        text2: mensagem
       });
     }
   };

@@ -13,19 +13,20 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { AppContext } from '../context/AppContext';
+import api from '../services/api';
 
 export default function NewEntryScreen({ route, navigation }) {
   const insets = useSafeAreaInsets();
   const { type: initialType } = route.params || { type: 'entrada' };
-  
+
   const [transactionType, setTransactionType] = useState(initialType);
   const [description, setDescription] = useState('');
   const [value, setValue] = useState('');
   
   const isEntry = transactionType === 'entrada';
-  const { addTransaction } = useContext(AppContext);
+  const { user } = useContext(AppContext);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!description.trim()) {
       Toast.show({
         type: 'error',
@@ -36,6 +37,7 @@ export default function NewEntryScreen({ route, navigation }) {
     }
 
     const numericValue = parseFloat(value.replace(',', '.'));
+
     if (isNaN(numericValue) || numericValue <= 0) {
       Toast.show({
         type: 'error',
@@ -45,17 +47,40 @@ export default function NewEntryScreen({ route, navigation }) {
       return;
     }
 
-    addTransaction(transactionType, description.trim(), numericValue);
-    
-    Toast.show({
-      type: 'success',
-      text1: 'Sucesso',
-      text2: 'Transação salva com sucesso!'
-    });
+    try {
+      await api.post(
+        '/transactions',
+        {
+          tipo: transactionType,
+          valor: numericValue,
+          descricao: description.trim()
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`
+          }
+        }
+      );
 
-    setTimeout(() => {
-      navigation.goBack();
-    }, 1000);
+      Toast.show({
+        type: 'success',
+        text1: 'Sucesso',
+        text2: 'Transação salva com sucesso!'
+      });
+
+      setTimeout(() => {
+        navigation.goBack();
+      }, 1000);
+
+    } catch (error) {
+      console.log(error.response?.data || error);
+
+      Toast.show({
+        type: 'error',
+        text1: 'Erro',
+        text2: 'Não foi possível salvar a transação.'
+      });
+    }
   };
 
   return (

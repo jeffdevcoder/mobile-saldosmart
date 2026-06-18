@@ -5,6 +5,23 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+
+  const loadUser = async () => {
+    try {
+      const data = await AsyncStorage.getItem('@SaldoSmart:user');
+
+      if (data) {
+        setUser(JSON.parse(data));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    loadUser();
+  }, []);
+
   const [transactions, setTransactions] = useState([
     {
       id: '1',
@@ -92,9 +109,15 @@ export const AppProvider = ({ children }) => {
     return true;
   };
 
-  const logout = () => {
-    setUser(null);
-    setTransactions([]);
+  const logout = async () => {
+    try {
+      await AsyncStorage.removeItem('@SaldoSmart:user');
+
+      setUser(null);
+      setTransactions([]);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const addTransaction = (type, description, value) => {
@@ -108,17 +131,28 @@ export const AppProvider = ({ children }) => {
     setTransactions([newTransaction, ...transactions]);
   };
 
+  const saveUser = async (userData) => {
+    try {
+      await AsyncStorage.setItem(
+        '@SaldoSmart:user',
+        JSON.stringify(userData)
+      );
+
+      setUser(userData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
         user,
         setUser,
-        transactions,
-        balance,
+        saveUser,
         login,
-        register,
         logout,
-        addTransaction,
+        register,
       }}
     >
       {children}

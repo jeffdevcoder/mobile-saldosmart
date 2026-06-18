@@ -1,27 +1,70 @@
-import React, { useContext } from 'react';
+import React, {
+  useState,
+  useContext,
+  useCallback
+} from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { AppContext } from '../context/AppContext';
+import api from '../services/api';
+import Toast from 'react-native-toast-message';
+import { Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function HomeScreen({ navigation }) {
-  const { user, transactions, balance, logout } = useContext(AppContext);
+  const { user, logout } = useContext(AppContext);
   const insets = useSafeAreaInsets();
+  const [transactions, setTransactions] = useState([]);
+  const [balance, setBalance] = useState(0);
+  const [totalEntries, setTotalEntries] = useState(0);
+  const [totalExpenses, setTotalExpenses] = useState(0);
 
   const username = user?.email 
     ? user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1) 
     : 'Usuário';
 
-  const totalEntries = transactions
-    .filter(t => t.type === 'entrada')
-    .reduce((acc, t) => acc + t.value, 0);
+  const loadDashboard = async () => {
+    try {
+      const response = await api.get('/dashboard', {
+        headers: {
+          Authorization: `Bearer ${user.token}`
+        }
+      });
 
-  const totalExpenses = transactions
-    .filter(t => t.type === 'saida')
-    .reduce((acc, t) => acc + t.value, 0);
+      setBalance(response.data.saldo);
+      setTotalEntries(response.data.entradas);
+      setTotalExpenses(response.data.saidas);
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const loadTransactions = async () => {
+    try {
+      const response = await api.get('/transactions', {
+        headers: {
+          Authorization: `Bearer ${user.token}`
+        }
+      });
+
+      setTransactions(response.data);
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadDashboard();
+      loadTransactions();
+    }, [user])
+  );
 
   const renderItem = ({ item }) => {
-    const isEntry = item.type === 'entrada';
+    const isEntry = item.tipo === 'entrada';
     return (
       <View style={styles.transactionItem}>
         <View style={[styles.iconWrapper, isEntry ? styles.iconWrapperEntry : styles.iconWrapperExpense]}>
@@ -32,15 +75,68 @@ export default function HomeScreen({ navigation }) {
           />
         </View>
         <View style={styles.transactionInfo}>
-          <Text style={styles.transactionDescription}>{item.description}</Text>
-          <Text style={styles.transactionDate}>{item.date}</Text>
+          <Text style={styles.transactionDescription}>{item.descricao}</Text>
+          <Text style={styles.transactionDate}>
+            {new Date(item.created_at).toLocaleDateString('pt-BR')}
+          </Text>
         </View>
-        <Text style={[styles.transactionValue, isEntry ? styles.entryText : styles.expenseText]}>
-          {isEntry ? '+' : '-'} R$ {item.value.toFixed(2)}
-        </Text>
+        <View style={styles.transactionActions}>
+          <Text
+            style={[
+              styles.transactionValue,
+              isEntry ? styles.entryText : styles.expenseText
+            ]}
+          >
+            {isEntry ? '+' : '-'} R$ {Number(item.valor).toFixed(2)}
+          </Text>
+
+          <TouchableOpacity
+            onPress={() => {
+              handleDelete(item.id);
+            }}
+            style={styles.deleteButton}
+          >
+            <Feather
+              name="trash-2"
+              size={18}
+              color="#dc3545"
+            />
+        </TouchableOpacity>
+        </View>
       </View>
-    );
+  );
   };
+
+  const handleDelete = async (id) => {
+
+  try {
+    const response = await api.delete(`/transactions/${id}`, {
+      headers: {
+        Authorization: `Bearer ${user.token}`
+      }
+    });
+
+    await loadDashboard();
+    await loadTransactions();
+
+    Toast.show({
+      type: 'success',
+      text1: 'Sucesso',
+      text2: 'Transação removida.'
+    });
+
+  } catch (error) {
+    console.log('ERRO COMPLETO:', error);
+    console.log('ERRO RESPONSE:', error.response?.data);
+    console.log('STATUS:', error.response?.status);
+
+    Toast.show({
+      type: 'error',
+      text1: 'Erro',
+      text2: 'Não foi possível remover.'
+    });
+  }
+};
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -99,7 +195,7 @@ export default function HomeScreen({ navigation }) {
         ) : (
           <FlatList
             data={transactions}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.id.toString()}
             renderItem={renderItem}
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
@@ -368,6 +464,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 15,
+  },
+  transactionActions: {
+    alignItems: 'flex-end',
+  },
+  deleteButton: {
+    marginTop: 6,
+  },
+  transactionActions: {
+    alignItems: 'flex-end',
+  },
+  deleteButton: {
+    marginTop: 8,
   },
 });
 

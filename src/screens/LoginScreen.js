@@ -11,38 +11,59 @@ import {
   Image
 } from 'react-native';
 import Toast from 'react-native-toast-message';
-
+import api from '../services/api';
 import { AppContext } from '../context/AppContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, setUser } = useContext(AppContext);
+  const { setUser } = useContext(AppContext);
 
-  const handleLogin = () => {
-    if (email && password) {
-      const userData = login(email, password);
-      if (!userData) {
-        Toast.show({
-          type: 'error',
-          text1: 'Erro',
-          text2: 'Usuário não encontrado!'
-        });
-      } else {
-        Toast.show({
-          type: 'success',
-          text1: 'Sucesso',
-          text2: 'Login realizado com sucesso!'
-        });
-        setTimeout(() => {
-          setUser(userData);
-        }, 2000);
-      }
-    } else {
+  const handleLogin = async () => {
+    if (!email || !password) {
       Toast.show({
         type: 'error',
         text1: 'Erro',
-        text2: 'Por favor, preencha todos os campos.'
+        text2: 'Preencha todos os campos.'
+      });
+
+      return;
+    }
+
+    try {
+      const response = await api.post('/login', {
+        email,
+        senha: password
+      });
+
+      const { token, usuario } = response.data;
+
+      setTimeout(async () => {
+        const userData = {
+          ...usuario,
+          token
+        };
+
+        await AsyncStorage.setItem(
+          '@SaldoSmart:user',
+          JSON.stringify(userData)
+        );
+
+        setUser(userData);
+      }, 1000);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Sucesso',
+        text2: 'Login realizado com sucesso!'
+      });
+
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Erro',
+        text2: 'Email ou senha inválidos.'
       });
     }
   };
