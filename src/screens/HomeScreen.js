@@ -138,6 +138,18 @@ export default function HomeScreen({ navigation }) {
   }
 };
 
+  const handleLogout = () => {
+    Toast.show({
+      type: 'info',
+      text1: 'Saindo...',
+      text2: 'Você está sendo desconectado'
+    });
+
+    setTimeout(() => {
+      logout();
+    }, 3000);
+  };
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" backgroundColor="#f5f6fa" />
@@ -152,7 +164,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.subGreeting}>Bem-vindo ao SaldoSmart</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.logoutButton} onPress={logout} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} activeOpacity={0.7}>
           <Feather name="log-out" size={20} color="#dc3545" />
         </TouchableOpacity>
       </View>
@@ -478,4 +490,3 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 });
-

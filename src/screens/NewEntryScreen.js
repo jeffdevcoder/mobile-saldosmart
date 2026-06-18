@@ -161,8 +161,11 @@ export default function NewEntryScreen({ route, navigation }) {
               placeholder="0,00"
               placeholderTextColor="#94a3b8"
               value={value}
-              onChangeText={setValue}
               keyboardType="numeric"
+              onChangeText={(text) => {
+                const numeric = text.replace(/[^0-9,.]/g, '');
+                setValue(numeric);
+              }}
             />
           </View>
         </View>
